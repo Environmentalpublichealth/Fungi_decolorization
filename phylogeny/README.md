@@ -28,5 +28,5 @@ makeblastdb -in unite.seq.fasta -dbtype nucl -out UNITEdb
 ```
 ### Run BLAST
 ```bash
-
+blastn -query MTB_all.fasta -db UNITEdb -out ./BLAST.result.tsv -evalue 1e-10 -outfmt 6 -max_target_seqs 1
 ```
