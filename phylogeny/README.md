@@ -31,3 +31,10 @@ makeblastdb -in unite.seq.fasta -dbtype nucl -out UNITEdb
 blastn -query MTB_all.fasta -db UNITEdb -out ./BLAST.result.tsv -evalue 1e-10 -outfmt 6 -max_target_seqs 1
 blastn -query MTB_all.fasta -db /scratch/data/bio/blastdb-2022.06.09/ITS_RefSeq_Fungi -out ./BLAST.Refseq.tsv -evalue 1e-10 -outfmt 6 -max_target_seqs 1 -num_threads 4
 ```
+
+### Extract ITS1-2 sequences
+```bash
+module load SeqKit/0.10.0-linux-x86_64
+seqkit grep -r -p '^(0[1-6]).*' MTB_all.fasta > ITS1-2.fasta
+# sequences with headers 01-06 are ITS1-2, 07-12 are ITS4
+```
