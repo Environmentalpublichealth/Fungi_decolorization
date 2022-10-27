@@ -79,3 +79,29 @@ cafexp -i filtered_cafe_input.txt -t SpeciesTree_rooted.txt.ultrametric.tre -o g
 # find 120 significant families
 ```
 Try different k values, not sure which one gives the best result.
+
+### Functional annotation for gene families
+We will only analyze the significant gene families. Obtain Significant family list from gamma_results
+```bash
+grep 'y' Gamma_family_results.txt > Significant_families.txt
+```
+Take the list of OG IDs and save it in a file `Sig_OG.txt`. Grab the orthogroup sequence files from Orthofinder results
+```bash
+mkdir SignificantOG
+while IFS= read -r line; do mv Orthogroup_Sequences/$line.fa SignificantOG/; done < Sig_OG.txt
+# Check if the file number match significant OG number
+ls SignificantOG/ | wc -l
+```
+Take one sequence from each OG and submit to InterproScan to search for the gene functions.
+```bash
+module load SeqKit/0.10.0-linux-x86_64
+touch sigOG_sequences.fa
+for file in SignificantOG/*fa
+do
+seqkit head -n 1 $file >> sigOG_sequences.fa
+done
+# chech the number of sequences extracted
+grep -c '>' sigOG_sequences.fa
+```
+Use a python script to replace the headers to OG. Interproscan doesn't take '*" as a stop codon, need to remove it. Then submit a batch job for interproscan.
+
