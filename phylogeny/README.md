@@ -38,3 +38,31 @@ module load SeqKit/0.10.0-linux-x86_64
 seqkit grep -r -p '^(0[1-6]).*' MTB_all.fasta > ITS1-2.fasta
 # sequences with headers 01-06 are ITS1-2, 07-12 are ITS4
 ```
+### Run multiple sequence alignment
+On terra, create a bash script
+```bash
+module load Clustal-Omega/1.2.4-intel-2018b
+
+clustalo -i ITS/ITS1_species.fasta -o species-MSA.fa -v --outfmt=fa --threads=4
+```
+### Build maximum likelyhood tree with fasta file
+```bash
+input_dna_phy='species-MSA.fa'
+
+######## PARAMETERS ########
+model='GTRGAMMA'                    # see manual for many available options
+algorithm='a'                       # see manual for many available options
+p_seed=12345                        # random seed for parsimony inferences
+num_runs=100                        # number of alternative runs on distinct starting trees
+
+mpi_threads=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE))   # number of raxmlHPC commands across all nodes
+perhost=$SLURM_NTASKS_PER_NODE      # number of raxmlHPC commands per node
+pthreads=$SLURM_CPUS_PER_TASK       # number of threads per raxmlHPC command
+
+########## OUTPUTS #########
+output_suffix="${model}_${algorithm}-${p_seed}-${num_runs}-hybrid-avx"
+
+################################### COMMANDS ###################################
+
+mpiexec -perhost $perhost -np $mpi_threads raxmlHPC -T $pthreads -m $model -p $p_seed -s $input_dna_phy -N $num_runs -n $output_suffix
+```
